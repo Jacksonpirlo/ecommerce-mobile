@@ -1,24 +1,12 @@
-import { login } from "@/services/login";
 import { Image } from "expo-image";
-import { Link, useRouter } from "expo-router";
-import { useState } from "react";
+import { Link } from "expo-router";
 import { Pressable, Text, TextInput, View } from "react-native";
+import Toast from "react-native-toast-message";
+import useLogin from "./hooks/useLogin";
 
 const Login = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const router = useRouter();
-
-  const handleLogin = async () => {
-    try {
-      const dataLogin = await login({ email, password });
-      console.log(dataLogin);
-      router.replace("/explore"); // JUST TO TEST
-    } catch (err) {
-      console.error("Login error:", err);
-    }
-  };
-
+  const { email, setEmail, password, setPassword, isLoading, handleLogin } =
+    useLogin();
   return (
     <View style={[{ flex: 1 }]}>
       <View>
@@ -92,19 +80,21 @@ const Login = () => {
             <Pressable
               style={[
                 {
-                  backgroundColor: "#008236",
+                  backgroundColor: isLoading ? "#ccc" : "#008236",
                   padding: 10,
                   borderRadius: 5,
                   width: "70%",
+                  opacity: isLoading ? 0.6 : 1,
                 },
               ]}
               onPress={handleLogin}
+              disabled={isLoading}
             >
               <Text style={[{ textAlign: "center", color: "#fff" }]}>
-                Iniciar Sesión
+                {isLoading ? "Cargando..." : "Iniciar Sesión"}
               </Text>
             </Pressable>
-            <Text>o</Text>
+            {/* <Text>o</Text>
             <Pressable
               style={[
                 {
@@ -120,7 +110,7 @@ const Login = () => {
               <Text style={[{ textAlign: "center", color: "#008236" }]}>
                 Iniciar con Google
               </Text>
-            </Pressable>
+            </Pressable> */}
           </View>
           <View style={[{ flex: 1, flexDirection: "row", gap: 3 }]}>
             <Text style={[{ color: "#008236" }]}>¿No tienes cuenta?</Text>
@@ -130,6 +120,7 @@ const Login = () => {
           </View>
         </View>
       </View>
+      <Toast />
     </View>
   );
 };
