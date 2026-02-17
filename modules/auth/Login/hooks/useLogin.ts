@@ -1,4 +1,5 @@
 import { login } from "@/services/login";
+import { useAuthStore } from "@/stores/authStorage";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import Toast from "react-native-toast-message";
@@ -8,6 +9,7 @@ const useLogin = () => {
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
+  const { login: loginStore } = useAuthStore();
 
   const showToast = (type: "success" | "error" | "info", text: string) => {
     Toast.show({
@@ -43,14 +45,16 @@ const useLogin = () => {
       const dataLogin = await login({ email, password });
 
       if (dataLogin.status === 200) {
+        // Save user data to Zustand store
+        await loginStore(dataLogin.data);
+
+        // Wait for persist middleware to sync
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
         showToast("success", "¡Inicio de sesión exitoso!");
-        setTimeout(() => {
-          router.replace("/explore"); // JUST TO TEST
-        }, 2000);
+        router.replace("/(tabs)");
       }
     } catch (err: any) {
-      console.error("Login error:", err);
-
       if (err.response) {
         const status = err.response.status;
 

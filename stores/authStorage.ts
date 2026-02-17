@@ -20,7 +20,6 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
           });
         } catch (error) {
-          console.error("Error en login:", error);
           throw error;
         }
       },
@@ -33,7 +32,7 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
           });
         } catch (error) {
-          console.error("Error en logout:", error);
+          // Handle logout error silently
         }
       },
 
@@ -50,7 +49,6 @@ export const useAuthStore = create<AuthState>()(
             set({ isAuthenticated: false, isLoading: false });
           }
         } catch (error) {
-          console.error("Error checking auth:", error);
           set({ isAuthenticated: false, isLoading: false });
         }
       },

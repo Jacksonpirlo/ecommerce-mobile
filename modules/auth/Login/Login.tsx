@@ -1,125 +1,68 @@
 import { Image } from "expo-image";
 import { Link } from "expo-router";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
 import useLogin from "./hooks/useLogin";
+import { styles } from "./styles";
 
 const Login = () => {
   const { email, setEmail, password, setPassword, isLoading, handleLogin } =
     useLogin();
   return (
-    <View style={[{ flex: 1 }]}>
-      <View>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <Image
           source={require("../../../assets/appImages/mobileImage.png")}
-          style={{ width: "100%", height: 200 }}
+          style={styles.imageContainer}
+          contentFit="cover"
         />
-      </View>
-      <View>
-        <View
-          style={[
-            {
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginVertical: 20,
-              padding: 10,
-              gap: 20,
-            },
-          ]}
-        >
-          <Text style={[{ color: "#008236", fontWeight: "600", fontSize: 25 }]}>
-            Plantas bonitas
-          </Text>
-          <Text style={[{ color: "#008236", fontWeight: "600", fontSize: 25 }]}>
-            Iniciar sesión
-          </Text>
-        </View>
-        <View
-          style={[{ flex: 1, justifyContent: "center", alignItems: "center" }]}
-        >
-          <View style={[{ gap: 20, width: "70%" }]}>
+
+        <View style={styles.contentWrapper}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerTitle}>Plantas bonitas</Text>
+            <Text style={styles.headerSubtitle}>Iniciar sesión</Text>
+          </View>
+
+          <View style={styles.inputsContainer}>
             <TextInput
               value={email}
               onChangeText={setEmail}
               placeholder="Email"
-              style={[
-                {
-                  borderColor: "#111",
-                  borderWidth: 1,
-                  padding: 8,
-                  borderRadius: 5,
-                },
-              ]}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.input}
             />
             <TextInput
               value={password}
               onChangeText={setPassword}
               placeholder="Contraseña"
               secureTextEntry
-              style={[
-                {
-                  borderColor: "#111",
-                  borderWidth: 1,
-                  padding: 8,
-                  borderRadius: 5,
-                },
-              ]}
+              autoCapitalize="none"
+              style={styles.input}
             />
           </View>
-          <View
+
+          <Pressable
             style={[
-              {
-                gap: 20,
-                marginVertical: 30,
-                alignItems: "center",
-                width: "100%",
-              },
+              styles.button,
+              isLoading ? styles.buttonDisabled : styles.buttonEnabled,
             ]}
+            onPress={handleLogin}
+            disabled={isLoading}
           >
-            <Pressable
-              style={[
-                {
-                  backgroundColor: isLoading ? "#ccc" : "#008236",
-                  padding: 10,
-                  borderRadius: 5,
-                  width: "70%",
-                  opacity: isLoading ? 0.6 : 1,
-                },
-              ]}
-              onPress={handleLogin}
-              disabled={isLoading}
-            >
-              <Text style={[{ textAlign: "center", color: "#fff" }]}>
-                {isLoading ? "Cargando..." : "Iniciar Sesión"}
-              </Text>
-            </Pressable>
-            {/* <Text>o</Text>
-            <Pressable
-              style={[
-                {
-                  borderColor: "#008236",
-                  borderWidth: 1,
-                  padding: 10,
-                  borderRadius: 5,
-                  width: "70%",
-                },
-              ]}
-              onPress={() => {}}
-            >
-              <Text style={[{ textAlign: "center", color: "#008236" }]}>
-                Iniciar con Google
-              </Text>
-            </Pressable> */}
-          </View>
-          <View style={[{ flex: 1, flexDirection: "row", gap: 3 }]}>
-            <Text style={[{ color: "#008236" }]}>¿No tienes cuenta?</Text>
-            <Link href={"/explore"}>
-              <Text style={[{ color: "#008236" }]}>Regístrate</Text>
+            <Text style={styles.buttonText}>
+              {isLoading ? "Cargando..." : "Iniciar Sesión"}
+            </Text>
+          </Pressable>
+
+          <View style={styles.footerContainer}>
+            <Text style={styles.footerText}>¿No tienes cuenta?</Text>
+            <Link href="/(auth)/register">
+              <Text style={styles.linkText}>Regístrate</Text>
             </Link>
           </View>
         </View>
-      </View>
+      </ScrollView>
       <Toast />
     </View>
   );

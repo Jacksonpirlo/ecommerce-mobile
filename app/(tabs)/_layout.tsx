@@ -28,9 +28,9 @@ function RootLayoutNav() {
     const inAuthGroup = segments[0] === "(auth)";
 
     if (!isAuthenticated && !inAuthGroup) {
-      // router.replace("/(auth)/login");
+      router.replace("/(auth)/login");
     } else if (isAuthenticated && inAuthGroup) {
-      router.replace("/(tabs)");
+      router.replace("/(tabs)/explore");
     }
   }, [isAuthenticated, isLoading, segments]);
 

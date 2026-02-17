@@ -45,17 +45,17 @@ const useRegister = () => {
     try {
       const dataRegister = await register({ user, email, password });
 
-      if (dataRegister.status === 201) {
-        showToast("success", "¡Te has registrado!");
+      if (dataRegister.status === 201 || dataRegister.status === 200) {
+        // Save user data to Zustand store
         await login(dataRegister.data);
-        (setUser(""), setPassword(""), setEmail(""));
-        setTimeout(() => {
-          router.replace("/explore"); // JUST TO TEST
-        }, 2000);
+
+        // Wait for persist middleware to sync
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        showToast("success", "¡Te has registrado exitosamente!");
+        router.replace("/(tabs)");
       }
     } catch (err: any) {
-      console.error("Register error:", err);
-
       if (err.response) {
         const status = err.response.status;
 

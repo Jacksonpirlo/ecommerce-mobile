@@ -7,33 +7,52 @@ import {
 } from "@react-navigation/native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
 import "react-native-reanimated";
 import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
 const toastConfig = {
-  success: (props) => (
+  success: (props: any) => (
     <BaseToast {...props} style={{ borderLeftColor: "#4ade80" }} />
   ),
-  error: (props) => <ErrorToast {...props} />,
+  error: (props: any) => <ErrorToast {...props} />,
 };
 
 function RootLayoutNav() {
   const { isAuthenticated, isLoading } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (isLoading) return;
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted || isLoading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    if (!isAuthenticated && !inAuthGroup) {
-      router.replace("/(auth)/login");
-    } else if (isAuthenticated && inAuthGroup) {
-      router.replace("/(tabs)");
-    }
-  }, [isAuthenticated, isLoading, segments]);
+    // Small delay to avoid navigation conflicts
+    const timeoutId = setTimeout(() => {
+      if (!isAuthenticated && !inAuthGroup) {
+        router.replace("/(auth)");
+      } else if (isAuthenticated && inAuthGroup) {
+        router.replace("/(tabs)");
+      }
+    }, 150);
+
+    return () => clearTimeout(timeoutId);
+  }, [isAuthenticated, isLoading, segments, isMounted]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#008236" />
+      </View>
+    );
+  }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
