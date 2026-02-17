@@ -1,100 +1,55 @@
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useAuthStore } from "@/stores/authStorage";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import "react-native-reanimated";
-
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useEffect } from "react";
+import "react-native-reanimated";
+import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
-
-
-// App.jsx
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
-import { Text, View } from "react-native";
-
-/*
-  1. Create the config
-*/
 const toastConfig = {
-  /*
-    Overwrite 'success' type,
-    by modifying the existing `BaseToast` component
-  */
   success: (props) => (
-    <BaseToast
-      {...props}
-      style={{ borderLeftColor: 'pink' }}
-      contentContainerStyle={{ paddingHorizontal: 15 }}
-      text1Style={{
-        fontSize: 15,
-        fontWeight: '400'
-      }}
-    />
+    <BaseToast {...props} style={{ borderLeftColor: "#4ade80" }} />
   ),
-  /*
-    Overwrite 'error' type,
-    by modifying the existing `ErrorToast` component
-  */
-  error: (props) => (
-    <ErrorToast
-      {...props}
-      text1Style={{
-        fontSize: 17
-      }}
-      text2Style={{
-        fontSize: 15
-      }}
-    />
-  ),
-  /*
-    Or create a completely new type - `tomatoToast`,
-    building the layout from scratch.
-
-    I can consume any custom `props` I want.
-    They will be passed when calling the `show` method (see below)
-  */
-  tomatoToast: ({ text1, props }) => (
-    <View style={{ height: 60, width: '100%', backgroundColor: 'tomato' }}>
-      <Text>{text1}</Text>
-      <Text>{props.uuid}</Text>
-    </View>
-  )
+  error: (props) => <ErrorToast {...props} />,
 };
 
+function RootLayoutNav() {
+  const { isAuthenticated, isLoading } = useAuthStore();
+  const segments = useSegments();
+  const router = useRouter();
 
+  useEffect(() => {
+    if (isLoading) return;
 
+    const inAuthGroup = segments[0] === "(auth)";
 
-export const unstable_settings = {
-  anchor: "(tabs)",
-};
+    if (!isAuthenticated && !inAuthGroup) {
+      router.replace("/(auth)/login");
+    } else if (isAuthenticated && inAuthGroup) {
+      router.replace("/(tabs)");
+    }
+  }, [isAuthenticated, isLoading, segments]);
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      // For web, force white background regardless of theme
-      document.body.style.backgroundColor = "#ffffff";
-      return () => {
-        // cleanup: remove inline style
-        document.body.style.backgroundColor = "";
-      };
-    }
-  }, []);
-
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="modal"
-          options={{ presentation: "modal", title: "Modal" }}
-        />
-      </Stack>
+      <RootLayoutNav />
       <StatusBar style="auto" />
       <Toast config={toastConfig} />
     </ThemeProvider>

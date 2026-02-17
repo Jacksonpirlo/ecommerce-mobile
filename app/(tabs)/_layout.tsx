@@ -1,43 +1,56 @@
-import { Tabs } from "expo-router";
-import React from "react";
-
-import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useAuthStore } from "@/stores/authStorage";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { Stack, useRouter, useSegments } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import "react-native-reanimated";
+import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
 
-export default function TabLayout() {
+const toastConfig = {
+  success: (props: any) => (
+    <BaseToast {...props} style={{ borderLeftColor: "#4ade80" }} />
+  ),
+  error: (props: any) => <ErrorToast {...props} />,
+};
+
+function RootLayoutNav() {
+  const { isAuthenticated, isLoading } = useAuthStore();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return;
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (!isAuthenticated && !inAuthGroup) {
+      // router.replace("/(auth)/login");
+    } else if (isAuthenticated && inAuthGroup) {
+      router.replace("/(tabs)");
+    }
+  }, [isAuthenticated, isLoading, segments]);
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        // Force white background for tab bar and scene container
-        tabBarStyle: { backgroundColor: "#ffffff" },
-        sceneContainerStyle: { backgroundColor: "#ffffff" },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: "Explore",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <RootLayoutNav />
+      <StatusBar style="auto" />
+      <Toast config={toastConfig} />
+    </ThemeProvider>
   );
 }
