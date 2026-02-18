@@ -2,12 +2,21 @@ import { Image } from "expo-image";
 import { Link } from "expo-router";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
-import useLogin from "./hooks/useLogin";
+import useRegister from "./hooks/useRegister";
 import { styles } from "./styles";
 
-const Login = () => {
-  const { email, setEmail, password, setPassword, isLoading, handleLogin } =
-    useLogin();
+const Register = () => {
+  const {
+    user,
+    setUser,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    isLoading,
+    handleRegister,
+  } = useRegister();
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -20,10 +29,17 @@ const Login = () => {
         <View style={styles.contentWrapper}>
           <View style={styles.headerContainer}>
             <Text style={styles.headerTitle}>Plantas bonitas</Text>
-            <Text style={styles.headerSubtitle}>Iniciar sesión</Text>
+            <Text style={styles.headerSubtitle}>Registrate</Text>
           </View>
 
           <View style={styles.inputsContainer}>
+            <TextInput
+              value={user}
+              onChangeText={setUser}
+              placeholder="User name"
+              autoCapitalize="words"
+              style={styles.input}
+            />
             <TextInput
               value={email}
               onChangeText={setEmail}
@@ -47,18 +63,18 @@ const Login = () => {
               styles.button,
               isLoading ? styles.buttonDisabled : styles.buttonEnabled,
             ]}
-            onPress={handleLogin}
+            onPress={handleRegister}
             disabled={isLoading}
           >
             <Text style={styles.buttonText}>
-              {isLoading ? "Cargando..." : "Iniciar Sesión"}
+              {isLoading ? "Cargando..." : "Registrarse"}
             </Text>
           </Pressable>
 
           <View style={styles.footerContainer}>
-            <Text style={styles.footerText}>¿No tienes cuenta?</Text>
-            <Link href="/(auth)/register">
-              <Text style={styles.linkText}>Regístrate</Text>
+            <Text style={styles.footerText}>¿Ya tienes cuenta?</Text>
+            <Link href="/(auth)/login">
+              <Text style={styles.linkText}>Inicia sesión</Text>
             </Link>
           </View>
         </View>
@@ -68,4 +84,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

@@ -1,11 +1,11 @@
 import { StyleSheet, View } from "react-native";
 
-import Login from "@/modules/auth/Login/Login";
+import Register from "@/modules/auth/Register/Register";
 
 export default function HomeScreen() {
   return (
     <View style={[{ flex: 1, backgroundColor: "#ffffff" }]}>
-      <Login />
+      <Register />
     </View>
   );
 }
